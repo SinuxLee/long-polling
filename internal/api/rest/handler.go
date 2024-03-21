@@ -30,33 +30,33 @@ func NewRestHandler(uc service.UseCase, swaggerAddr string) Handler {
 }
 
 // swagger 项目描述
-// @title template
-// @version 1.0
-// @description 项目结构概要描述
-// @termsOfService http://swagger.io/terms/
+//	@title			template
+//	@version		1.0
+//	@description	项目结构概要描述
+//	@termsOfService	http://swagger.io/terms/
 
-// @tag.name Hello
-// @tag.description 各种问候
+//	@tag.name			Hello
+//	@tag.description	各种问候
 
-// @contact.name sinuxlee
-// @contact.url http://www.swagger.io/support
-// @contact.email sinuxlee@qq.com
+//	@contact.name	sinuxlee
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	sinuxlee@qq.com
 
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @schemes http https
-// @host localhost:8086
-// @BasePath /svr
-// @query.collection.format multi
+//	@schemes					http https
+//	@host						localhost:8086
+//	@BasePath					/svr
+//	@query.collection.format	multi
 
-// @securityDefinitions.basic BasicAuth
+//	@securityDefinitions.basic	BasicAuth
 
-// @securityDefinitions.apikey TokenAuth
-// @in header
-// @name Authorization
+//	@securityDefinitions.apikey	TokenAuth
+//	@in							header
+//	@name						Authorization
 
-// @x-extension-openapi {"example": "value on a json format"}
+//	@x-extension-openapi	{"example": "value on a json format"}
 
 type restHandler struct {
 	useCase     service.UseCase
@@ -155,6 +155,11 @@ func (c *restHandler) RegisterHandler(engine *gin.Engine) error {
 	group1.Use(c.tryLockUser)
 	group1.GET("hello/:name", c.Hello)
 	group1.POST("hello/:name", c.Hello)
+
+	manager := c.useCase.GetLongPoller()
+	polling := group1.Group("/polling")
+	polling.POST("/pub", gin.WrapF(manager.PublishHandler))
+	polling.GET("/sub", gin.WrapF(manager.SubscriptionHandler))
 
 	return nil
 }
